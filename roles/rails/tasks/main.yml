@@ -1,0 +1,15 @@
+- name: Add Node.js apt repository
+  apt_repository: repo='ppa:chris-lea/node.js' state=present
+
+- name: Install dependencies
+  apt: name={{ item }} state=latest
+  with_items:
+    - curl
+    - git-core
+    - nodejs
+    - libcurl3
+    - libcurl3-gnutls
+    - libcurl4-openssl-dev
+    - libxml2
+    - libxml2-dev
+    - libxslt1-dev

@@ -1,0 +1,45 @@
+- name: Install Nginx
+  apt: name=nginx state=latest
+
+- name: Activate the server_names_hash_bucket_size directive
+  lineinfile: dest=/etc/nginx/nginx.conf regexp="server_names_hash_bucket_size" line="        server_names_hash_bucket_size 64;" state=present
+  notify:
+    - restart nginx
+
+- name: Copy Nginx proxy configuration
+  template: src=proxy.conf dest=/etc/nginx/conf.d/proxy.conf
+  notify:
+    - restart nginx
+
+- name: Remove default Nginx site
+  file: path=/etc/nginx/sites-enabled/default state=absent
+  notify:
+    - restart nginx
+
+- name: Check if current hostname use SSL
+  sudo: no
+  local_action: stat path=roles/nginx/files/{{ inventory_hostname }}.crt
+  register: ssl_certificate_exists
+
+- name: Create certificates folder
+  file: path=/etc/certs state=directory
+  when: ssl_certificate_exists.stat.exists == True
+
+- name: Copy SSL certificate
+  copy: src={{ inventory_hostname }}.crt dest=/etc/certs/{{ inventory_hostname }}.crt
+  when: ssl_certificate_exists.stat.exists == True
+
+- name: Copy SSL certificate key
+  copy: src={{ inventory_hostname }}.key dest=/etc/certs/{{ inventory_hostname }}.key
+  when: ssl_certificate_exists.stat.exists == True
+
+- name: Copy SSL Nginx configuration
+  template: src=app/{{ app_name }}.ssl.conf dest=/etc/nginx/sites-available/{{ inventory_hostname }}.conf
+  when: ssl_certificate_exists.stat.exists == True
+  notify:
+    - restart nginx
+
+- name: Copy non SSL Nginx configuration
+  file: src=/etc/nginx/sites-available/{{ inventory_hostname }}.conf dest=/etc/nginx/sites-enabled/{{ inventory_hostname }}.conf state=link
+  notify:
+    - restart nginx

@@ -1,0 +1,5 @@
+- name: Copy unicorn service
+  template: src=service.sh dest=/etc/init.d/unicorn_{{ app_name }}_{{ stage }} mode=755
+
+- name: Auto start unicorn service
+  shell: 'update-rc.d -f unicorn_{{ app_name }}_{{ stage }} defaults'

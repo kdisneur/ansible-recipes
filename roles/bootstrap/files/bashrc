@@ -1,0 +1,7 @@
+WORKSPACE=${HOME}/app
+
+export CDPATH="${CDPATH}:${WORKSPACE}"
+export EDITOR=vim
+export LC_ALL=en_US.UTF-8
+
+alias vi=vim

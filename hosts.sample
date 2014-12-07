@@ -1,0 +1,13 @@
+server_name                 ansible_ssh_host=my.host.io
+server_proxy_for_s3         ansible_ssh_host=my.awesome.proxy.io
+another_server_proxy_for_s3 ansible_ssh_host=another.awesome.proxy.io
+
+[drone]
+server_name backup_access_key_id='<AWS ACCESS KEY>' backup_secret_access_key='<AWS SECRET KEY>' backup_bucket='<BUCKET NAME>' backup_email='<EMAIL>'
+
+[s3_proxies]
+server_proxy_for_s3 s3_bucket_name='<FULL BUCKET NAME>'
+another_server_proxy_for_s3 s3_bucket_name='<FULL BUCKET NAME>'
+
+[wakeup_heroku]
+server_name backup_access_key_id='<AWS ACCESS KEY>' backup_secret_access_key='<AWS SECRET KEY>' backup_bucket='<BUCKET NAME>' backup_email='<EMAIL>'

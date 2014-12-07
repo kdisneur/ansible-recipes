@@ -1,0 +1,4 @@
+hosts
+roles/nginx/files/*.crt
+roles/nginx/files/*.key
+roles/bootstrap/files/ssh_key.pub

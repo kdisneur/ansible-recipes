@@ -1,0 +1,13 @@
+{{ app_dir }}/shared/log/*.log {
+  daily
+  missingok
+  rotate 7
+  compress
+  delaycompress
+  notifempty
+  copytruncate
+  sharedscripts
+  postrotate
+    kill -s USR1 `cat {{ app_dir }}/shared/pids/{{ app_name }}_{{ stage }}.pid`
+  endscript
+}

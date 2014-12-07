@@ -1,0 +1,42 @@
+- name: Install apt dependencies
+  apt: name={{ item }} state=latest
+  with_items:
+    - curl
+    - git-core
+    - libreadline-ruby
+
+- name: Install RBENV
+  sudo: false
+  shell: 'curl https://raw.githubusercontent.com/fesplugas/rbenv-installer/master/bin/rbenv-installer | bash'
+
+- name: Add RBENV init script
+  sudo: false
+  copy: src=rbenv_init.sh dest=~/.rbenv_init
+
+- name: Add RBENV init script to bashrc
+  sudo: false
+  lineinfile: dest=~/.bashrc line='. ~/.rbenv_init'
+
+- name: Boostrap RBENV
+  sudo: false
+  shell: rbenv bootstrap-{{ os_version }}
+
+- name: Install Ruby version {{ ruby_version }}
+  sudo: false
+  shell: rbenv install -s {{ ruby_version }}
+  notify:
+    - rbenv rehash
+
+- name: Set ruby version {{ ruby_version }} as global
+  sudo: false
+  shell: rbenv global {{ ruby_version }}
+
+- name: Install ruby default packages
+  sudo: false
+  shell: 'gem install -f {{ item }}'
+  with_items:
+    - bundler
+    - rake
+    - rdoc
+  notify:
+    - rbenv rehash

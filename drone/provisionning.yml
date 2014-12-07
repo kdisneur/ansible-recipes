@@ -1,0 +1,14 @@
+- hosts: drone
+  user: app
+  sudo: yes
+  gather_facts: no
+  vars:
+    - app_name: drone
+    - run_bootstrap: n
+    - os_version: ubuntu-12-04
+    - ruby_version: 2.1.2
+  roles:
+    - { role: bootstrap, when: run_bootstrap == 'y' }
+    - { role: backup, tags: [backup], backup_type: sqlite, backup_database_path: /var/lib/drone, backup_database_name: drone.sqlite }
+    - { role: nginx, tags: [nginx] }
+    - { role: drone, tags: [drone] }

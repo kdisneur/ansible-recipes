@@ -1,0 +1,13 @@
+- hosts: drone
+  user: app
+  sudo: yes
+  vars_prompt:
+    docker_image_name: "What's the name of the docker image?"
+  tasks:
+    - name: Pull docker image {{ docker_image_name }}
+      shell: 'docker pull {{ docker_image_name }}'
+      notify:
+        - restart drone
+  handlers:
+    - name: restart drone
+      shell: 'stop drone && start drone'

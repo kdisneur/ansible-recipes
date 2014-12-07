@@ -1,0 +1,13 @@
+- hosts: s3_proxies
+  user: app
+  sudo: yes
+  gather_facts: no
+  vars:
+    - app_name: s3_proxy
+    - os_version: ubuntu-12-04
+    - run_bootstrap: n
+    - stage: production
+  roles:
+    - { role: bootstrap, when: run_bootstrap == 'y' }
+    - common
+    - { role: nginx, tags: [nginx] }

@@ -1,0 +1,38 @@
+- name: Add app remote user
+  sudo: no
+  remote_user: root
+  user: name=app shell=/bin/bash
+
+- name: Add SSH public key to app user
+  sudo: no
+  remote_user: root
+  authorized_key: user=app key="{{ lookup('file', 'roles/bootstrap/files/ssh_key.pub') }}"
+
+- name: Add user app to sudoers
+  sudo: no
+  remote_user: root
+  lineinfile: "dest=/etc/sudoers regexp='^app ALL' line='app ALL=(ALL) NOPASSWD: ALL' state=present"
+
+- name: Disallow root SSH access
+  sudo: no
+  remote_user: root
+  lineinfile: dest=/etc/ssh/sshd_config regexp="^PermitRootLogin" line="PermitRootLogin no" state=present
+  notify:
+    - restart sshd
+
+- name: Disallow SSH password authentication
+  sudo: no
+  remote_user: root
+  lineinfile: dest=/etc/ssh/sshd_config regexp="^PasswordAuthentication" line="PasswordAuthentication no" state=present
+  notify:
+    - restart sshd
+
+- name: Disallow SSH GSS API authentication
+  sudo: no
+  remote_user: root
+  lineinfile: dest=/etc/ssh/sshd_config regexp="^GSSAPIAuthentication" line="GSSAPIAuthentication no" state=present
+  notify:
+    - restart sshd
+
+- name: Copy bashrc to app user
+  copy: src=bashrc dest=/home/app/.bashrc mode=700 owner=app

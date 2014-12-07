@@ -1,0 +1,21 @@
+- name: Install apt dependencies
+  apt: name={{ item }} state=latest
+  with_items:
+    - libxslt-dev
+    - libxml2-dev
+
+- name: Install AWS ruby SDK
+  sudo: false
+  shell: gem install aws-sdk
+
+- name: Create backup folder
+  file: path="/var/backups/{{ backup_type }}_{{app_name}}" state=directory
+
+- name: Copy backup script
+  template: src="backup_{{ backup_type }}.rb" dest="/usr/bin/backup_{{ backup_type }}_{{ app_name }}" mode=711 owner=app group=app
+
+- name: Add mailto to crontab
+  cron: name='Mailto for {{ app_name }} database backup' minute='MAILTO={{ backup_email }}' month='' day='' hour='' weekday='' user=app job=''
+
+- name: Add {{ backup_type }} backup for { app_name }} in crontab
+  cron: name="Backup {{ app_name }} database" month='*' day='*' hour=2 minute=0 user=app job="rbenv shell {{ ruby_version }} && /usr/bin/backup_{{ backup_type }}_{{ app_name }} > /dev/null"

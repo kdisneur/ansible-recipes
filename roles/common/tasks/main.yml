@@ -1,0 +1,34 @@
+- name: Install apt-add-repository
+  apt: name=python-software-properties state=latest
+
+- name: Check swap existence
+  shell: 'swapon -s | grep "/swapfile"'
+  register: has_swapfile
+  ignore_errors: yes
+
+- name: Create a SWAP file
+  shell: 'dd if=/dev/zero of=/swapfile bs=1024 count=256k'
+  when: 'has_swapfile|failed'
+
+- name: Create a SWAP area
+  shell: 'mkswap /swapfile'
+  when: 'has_swapfile|failed'
+
+- name: Active SWAP
+  shell: 'swapon /swapfile'
+  when: 'has_swapfile|failed'
+
+- name: Add SWAP in fstab
+  lineinfile: dest=/etc/fstab line='/swapfile       none    swap    sw      0       0' state=present
+
+- name: Fix swapiness value
+  shell: 'echo 10 | sudo tee /proc/sys/vm/swappiness'
+
+- name: Fix swap value in sysctl
+  lineinfile: dest=/etc/sysctl.conf line='vm.swappiness = 10' state=present
+
+- name: Change rights on swapfile
+  file: path=/swapfile owner=root group=root mode=0600
+
+- name: Set timezone to {{ timezone }}
+  file: src=/usr/share/zoneinfo/{{ timezone }} dest=/etc/localtime state=link force=true

@@ -1,0 +1,13 @@
+- name: Install docker
+  shell: "curl -sSL https://get.docker.io/ubuntu/ | sudo sh"
+
+- name: Download latest drone.io package
+  get_url: url=http://downloads.drone.io/latest/drone.deb dest=.
+
+- name: Install drone.io
+  apt: deb=drone.deb state=installed
+
+- name: Change drone listening port
+  lineinfile: dest=/etc/init/drone.conf regexp="\sDRONED_OPTS=" line="    DRONED_OPTS='--port=:8080'" state=present
+  notify:
+    - restart drone
