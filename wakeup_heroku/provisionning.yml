@@ -1,4 +1,4 @@
-- hosts: wakeupheroku
+- hosts: wakeup_heroku
   user: app
   sudo: yes
   gather_facts: no

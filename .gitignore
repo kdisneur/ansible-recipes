@@ -1,4 +1,6 @@
 hosts
 roles/nginx/files/*.crt
 roles/nginx/files/*.key
+roles/nginx/files/*.unified-crt
+roles/nginx/files/*.pem
 roles/bootstrap/files/ssh_key.pub

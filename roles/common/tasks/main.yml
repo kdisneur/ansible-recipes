@@ -32,3 +32,6 @@
 
 - name: Set timezone to {{ timezone }}
   file: src=/usr/share/zoneinfo/{{ timezone }} dest=/etc/localtime state=link force=true
+
+- name: Install vim
+  apt: name=vim state=present
