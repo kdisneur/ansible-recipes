@@ -1,0 +1,128 @@
+- hosts: macbook
+  gather_facts: no
+  vars:
+    ruby_version: 2.1.5
+  vars_prompt:
+    - name: github_username
+      prompt: "Github Username:"
+      private: false
+    - name: github_password
+      prompt: "Github Password (I'll keep it secret, I promise):"
+      private: true
+  tasks:
+    - name: "Check brew existence"
+      stat: path=/usr/local/bin/brew
+      register: brew_binary
+
+    - name: "Install brew"
+      shell: 'ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"'
+      when: brew_binary.stat.exists == False
+
+    - name: "Taps homebrew repositories"
+      homebrew_tap: tap={{ item }} state=present
+      with_items:
+        - flabbergast/muttpatched
+        - neovim/homebrew-neovim
+        - thoughtbot/formulae
+
+    - name: "Update homebrew formulae"
+      homebrew: update_homebrew=yes
+
+    - name: "Install basic homebrew formulae"
+      homebrew: name={{ item }} state=present
+      with_items:
+        - fontconfig
+        - git
+        - ghostscript
+        - gnupg
+        - jasper
+        - liblqr
+        - librsvg
+        - libtiff
+        - libxml2
+        - libxslt
+        - libwmf
+        - links
+        - little-cms2
+        - mysql
+        - neovim
+        - nginx
+        - offlineimap
+        - openexr
+        - qt
+        - rcm
+        - rbenv
+        - ruby-build
+        - tmux
+        - webp
+        - caskroom/cask/brew-cask
+
+    - name: "Install imagemagick homebrew formula"
+      homebrew: name=imagemagick state=present install_options=with-libtiff
+
+    - name: "Install mutt homebrew formula"
+      homebrew: name=mutt-patched state=present install_options=with-sidebar-patch,with-s-lang
+
+    - name: "Install reattach-to-user-namespace homebrew formula"
+      homebrew: name=reattach-to-user-namespace state=present install_options=wrap-pbcopy-and-pbpaste
+
+    - name: "Install homebrew cask formuale"
+      homebrew_cask: name={{ item }} state=present
+      with_items:
+        - alfred
+        - dropbox
+        - evernote
+        - google-chrome
+        - iterm2
+        - 1password
+        - sequel-pro
+        - skype
+        - virtualbox
+        - xquartz
+
+    - name: "Check oh-my-zsh existence"
+      stat: path=~/.oh-my-zsh
+      register: ohmyzsh_directory
+
+    - name: "Install oh-my-zsh"
+      shell: "curl -L https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh | sh"
+      when: ohmyzsh_directory.stat.exists == False
+
+    - name: "Check neobundle existence"
+      stat: path=~/.vim/bundle/neobundle.vim/
+      register: neobundle_directory
+
+    - name: "Install neobundle"
+      shell: "curl https://raw.githubusercontent.com/Shougo/neobundle.vim/master/bin/install.sh | sh"
+      when: neobundle_directory.stat.exists == False
+
+    - name: "Clone public dotfile repository"
+      git: repo=https://github.com/kdisneur/dotfiles.git dest=~/app/dotfiles
+
+    - name: "Clone private dotfile repository"
+      git: repo=https://{{ github_username }}:{{ github_password }}@github.com/kdisneur/private-dotfiles.git dest=~/app/private-dotfiles
+
+    - name: "Link dotfiles repository to home directory"
+      file: src=~/app/dotfiles dest=~/.dotfiles state=link
+
+    - name: "Link dotfiles"
+      shell: "rcup -t {{ dotfiles_type }}"
+
+    - name: "Install liquidprompt repository"
+      git: repo=git@github.com:nojhan/liquidprompt dest=app/others/liquidprompt
+
+    - name: "Install powerline repository"
+      git: repo=git@github.com:Lokaltog/powerline dest=app/others/poweline
+
+    - name: "Install ruby {{ ruby_version }}"
+      shell: rbenv install {{ ruby_version }}
+
+    - name: "Make ruby {{ ruby_version }} global"
+      shell: rbenv global {{ ruby_version }}
+
+    - name: "Install gem dependencies"
+      shell: gem install {{ item }}
+      with_items:
+        - bundler
+        - tmuxinator
+        - puma

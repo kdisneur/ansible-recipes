@@ -1,0 +1,11 @@
+- hosts: dlna
+  user: app
+  sudo: yes
+  gather_facts: no
+  vars:
+    - run_bootstrap: n
+    - remote_user:   pi
+  roles:
+    - { role: bootstrap, when: run_bootstrap == 'y' }
+    - { role: common }
+    - { role: dlna }

@@ -1,0 +1,3 @@
+minidlna_hard_drive_lib: /dev/sdaX
+video_path_on_hard_drive: path/to/videos
+minidlna_name: 'My Minidlna'

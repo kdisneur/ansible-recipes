@@ -1,0 +1,28 @@
+- name: 'Install cups'
+  apt: name=cups state=present
+
+- name: 'Add user in cups admin group'
+  user: name={{ printer_user_allowed }} groups=lpadmin append=yes
+
+- name: 'Make cups available for everyone'
+  shell: 'cupsctl --share-printers --remote-any'
+  notify: 'restart cups'
+
+- name: 'Install dependencies'
+  apt: name={{ item }} state=present
+  with_items:
+    - libcups2-dev
+    - libjpeg62-dev
+    - libsane-dev
+    - libsnmp-dev
+    - libusb-1.0-0-dev
+    - python-dev
+    - cups-pdf
+    - python-qt4
+    - libcupsimage2
+    - libcupsimage2-dev
+    - python-qt4-dbus
+    - libtool
+    - xsane
+    - avahi-utils
+    - python-notify

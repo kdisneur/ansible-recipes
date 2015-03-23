@@ -1,0 +1,4 @@
+- name: 'Add Wifi configuration'
+  lineinfile: dest=/etc/wpa_supplicant/wpa_supplicant.conf regexp='network=.*\n.*ssid=.*\n.*psk=.*\n}' line='network={\n  ssid="{{ wifi_ssid }}"\n  psk="{{ wifi_password }}"\n}'
+  notify:
+    - restart wlan

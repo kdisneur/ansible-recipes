@@ -1,0 +1,2 @@
+- name: 'restart wlan'
+  shell: 'ifdown wlan0 && ifup wlan0'

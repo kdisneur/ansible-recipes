@@ -1,0 +1,8 @@
+- name: restart dlna
+  service: name=minidlna state=restarted
+
+- name: reload dlna
+  shell: '/etc/init.d/minidlna force-reload'
+
+- name: reload fstab
+  shell: 'mount -a'

@@ -1,0 +1,20 @@
+- name: Install Minidlna
+  apt: name=minidlna state=latest
+
+- name: Create media folder
+  file: path=/mnt/media state=directory mode='u=rwx,g=rx,o=rx'
+
+- name: Add external hard drive in fstab
+  lineinfile: dest=/etc/fstab regexp='/mnt/media' line='{{ minidlna_hard_drive_lib }}    /mnt/media   vfat    defaults     0        2'
+  notify: reload fstab
+
+- name: Add video in Minidlna
+  lineinfile: dest=/etc/minidlna.conf regexp='^media_dir=V,' line='media_dir=V,/mnt/media/{{ video_path_on_hard_drive }}'
+  notify:
+    - restart dlna
+    - reload dlna
+
+- name: Change Minidlna name
+  lineinfile: dest=/etc/minidlna.conf regexp='^friendly_name=' insertafter='#friendly_name=' line='friendly_name={{ minidlna_name }}'
+  notify:
+    - restart dlna
