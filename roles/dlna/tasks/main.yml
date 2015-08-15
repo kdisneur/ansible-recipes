@@ -1,11 +1,15 @@
-- name: Install Minidlna
-  apt: name=minidlna state=latest
+- name: Install packages
+  apt: name={{ item }} state=latest
+  with_items:
+    - minidlna
+    - exfat-utils
+    - exfat-fuse
 
 - name: Create media folder
   file: path=/mnt/media state=directory mode='u=rwx,g=rx,o=rx'
 
 - name: Add external hard drive in fstab
-  lineinfile: dest=/etc/fstab regexp='/mnt/media' line='{{ minidlna_hard_drive_lib }}    /mnt/media   vfat    defaults     0        2'
+  lineinfile: dest=/etc/fstab regexp='/mnt/media' line='{{ minidlna_hard_drive_lib }}    /mnt/media   exfat    defaults     0        2'
   notify: reload fstab
 
 - name: Add video in Minidlna
